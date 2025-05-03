@@ -2,19 +2,17 @@
 {
     public class QuestionProvider
     {
-        private static readonly List<string> Questions = new()
-    {
-        "Ulubione hobby?",
-        "Jak spędzasz weekendy?",
-        "Twoje ulubione jedzenie?",
-        "Co lubisz robić z dziećmi?",
-        "Jakie miejsce chciałbyś odwiedzić?"
-    };
+        private readonly List<string> _questions;
 
-        public static string GetRandomQuestion()
+        public QuestionProvider(string filePath)
         {
-            var rand = new Random();
-            return Questions[rand.Next(Questions.Count)];
+            _questions = File.ReadAllLines(filePath).ToList();
+        }
+
+        public string GetRandomQuestion()
+        {
+            var random = new Random();
+            return _questions[random.Next(_questions.Count)];
         }
     }
 }

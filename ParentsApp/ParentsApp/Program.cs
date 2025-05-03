@@ -1,4 +1,6 @@
+using Microsoft.Extensions.Options;
 using ParentsApp;
+using ParentsApp.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +9,11 @@ builder.Services.AddControllersWithViews();
 builder.Services.Configure<AppSettings>(
     builder.Configuration.GetSection("AppSettings"));
 
+builder.Services.AddSingleton<QuestionProvider>(sp =>
+{
+    var settings = sp.GetRequiredService<IOptions<AppSettings>>().Value;
+    return new QuestionProvider(settings.QuestionsFilePath);
+});
 
 var app = builder.Build();
 

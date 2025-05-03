@@ -10,18 +10,22 @@ namespace ParentsApp.Controllers
     {
         private readonly IWebHostEnvironment _env;
         private readonly string _filePath;
+        private readonly QuestionProvider _questionProvider;
 
-        public ParentsController(IWebHostEnvironment env, IOptions<AppSettings> options)
+        public ParentsController(IWebHostEnvironment env, IOptions<AppSettings> options,
+            QuestionProvider questionProvider)
         {
             _env = env;
             _filePath = options.Value.ParentFilePath;
+            _questionProvider = questionProvider;
 
             Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
         }
 
         public IActionResult Form()
         {
-            var question = QuestionProvider.GetRandomQuestion();
+            string question = _questionProvider.GetRandomQuestion();
+
             ViewBag.Question = question;
             return View(new Parent { Question = question });
         }
