@@ -1,0 +1,82 @@
+﻿@model ParentsApp.Models.Parent
+
+@{
+    ViewData["Title"] = "Dodaj rodzica";
+}
+
+<h2>Dodaj rodzica</h2>
+
+<form id="parentForm">
+    <div class="mb-3">
+        <label class="form-label">Typ rodzica</label>
+        <select class="form-select" asp-for="ParentType">
+            <option value="0">Mama</option>
+            <option value="1">Tata</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Imię</label>
+        <input class="form-control" asp-for="Name" required />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Nazwisko</label>
+        <input class="form-control" asp-for="Surname" required />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Liczba dzieci</label>
+        <input type="number" class="form-control" asp-for="ChildrenCount" required min="0" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">@Model.Question</label>
+        <input class="form-control" asp-for="QuestionAnswer" required />
+        <input type="hidden" asp-for="Question" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Zapisz</button>
+</form>
+
+<div id="result" class="mt-3"></div>
+
+@section Scripts {
+    <script>
+        document.getElementById("parentForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const json = {};
+
+            formData.forEach((value, key) => {
+                json[key] = value;
+            });
+
+            console.log(json);
+            delete json["__Invariant"];
+            json["ParentType"] = parseInt(json["ParentType"]);
+            json["ChildrenCount"] = parseInt(json["ChildrenCount"]);
+
+
+            fetch("/Parents/Save", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(json)
+            })
+            .then(async response => {
+                const msg = await response.text();
+                const resultDiv = document.getElementById("result");
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `<div class="alert alert-success">${msg}</div>`;
+                    document.getElementById("parentForm").reset();
+                } else {
+                    resultDiv.innerHTML = `<div class="alert alert-danger">${msg}</div>`;
+                }
+            });
+        });
+    </script>
+}
