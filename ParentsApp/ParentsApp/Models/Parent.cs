@@ -13,7 +13,7 @@ namespace ParentsApp.Models
         [Required(ErrorMessage = "Wybierz typ rodzica")]
         public eParentType ParentType { get; set; }
         [Required(ErrorMessage = "Podaj liczbę dzieci")]
-        [Range(1, 100, ErrorMessage = "Liczba dzieci musi być większa niż 1")]
+        [Range(1, 100, ErrorMessage = "Liczba dzieci musi być większa niż 1, ale mniejsza niż 100")]
         public int ChildrenCount { get; set; }
         public string Question { get; set; }
         public string QuestionAnswer { get; set; } = String.Empty;

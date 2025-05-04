@@ -71,8 +71,6 @@ namespace ParentsApp.Controllers
             }
         }
 
-
-
         public async Task<IActionResult> List()
         {
             var parents = new List<Parent>();
@@ -91,7 +89,7 @@ namespace ParentsApp.Controllers
                         {
                             parents.Add(new Parent
                             {
-                                ParentType = Enum.Parse<eParentType>(parts[0]),
+                                ParentType = EnumExtensions.ParseFromDisplayName<eParentType>(parts[0]),
                                 Name = parts[1],
                                 Surname = parts[2],
                                 ChildrenCount = int.Parse(parts[3]),
@@ -124,7 +122,6 @@ namespace ParentsApp.Controllers
             return View(parents);
         }
 
-
         private List<SelectListItem> GetParentTypeSelectList()
         {
             return Enum.GetValues(typeof(eParentType))
@@ -155,7 +152,7 @@ namespace ParentsApp.Controllers
         private string FormatParentAsLine(Parent parent)
         {
             return string.Join(";",
-                parent.ParentType,
+                parent.ParentType.GetDisplayName(),
                 parent.Name.Trim(),
                 parent.Surname.Trim(),
                 parent.ChildrenCount,
@@ -168,6 +165,5 @@ namespace ParentsApp.Controllers
         {
             await System.IO.File.AppendAllTextAsync(_filePath, line + Environment.NewLine, Encoding.UTF8);
         }
-
     }
 }
