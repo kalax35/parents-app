@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 
 namespace ParentsApp.Models
 {
@@ -14,13 +15,17 @@ namespace ParentsApp.Models
         [Required]
         public int ChildrenCount { get; set; }
         public string Question { get; set; }
-        public string QuestionAnswer { get; set; } = string.Empty;
+        public string QuestionAnswer { get; set; } = String.Empty;
+        public List<SelectListItem> ParentTypes { get; set; } = new();
     }
 
 
     public enum eParentType
     {
+        [Display(Name = "Mama")]
         Mother = 0,
+
+        [Display(Name = "Tata")]
         Father = 1
     }
 }

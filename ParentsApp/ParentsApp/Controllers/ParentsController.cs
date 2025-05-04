@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
 using ParentsApp.Models;
 using ParentsApp.Services;
+using System.ComponentModel.DataAnnotations;
+using System.Reflection;
 using System.Text;
 
 namespace ParentsApp.Controllers
@@ -24,10 +27,13 @@ namespace ParentsApp.Controllers
 
         public IActionResult Form()
         {
-            string question = _questionProvider.GetRandomQuestion();
+            var model = new Parent
+            {
+                Question = _questionProvider.GetRandomQuestion(),
+                ParentTypes = GetParentTypeSelectList()
+            };
 
-            ViewBag.Question = question;
-            return View(new Parent { Question = question });
+            return View(model);
         }
 
         [HttpPost]
@@ -89,6 +95,21 @@ namespace ParentsApp.Controllers
             }
 
             return View(parents);
+        }
+
+        private List<SelectListItem> GetParentTypeSelectList()
+        {
+            return Enum.GetValues(typeof(eParentType))
+                       .Cast<eParentType>()
+                       .Select(e => new SelectListItem
+                       {
+                           Value = e.ToString(),
+                           Text = e.GetType()
+                                   .GetMember(e.ToString())
+                                   .First()
+                                   .GetCustomAttribute<DisplayAttribute>()?.Name ?? e.ToString()
+                       })
+                       .ToList();
         }
     }
 }

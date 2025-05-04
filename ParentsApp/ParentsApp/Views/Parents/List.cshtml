@@ -1,4 +1,5 @@
 ﻿@model List<Parent>
+@using ParentsApp.Helpers
 
 <h2>Lista zapisanych rodziców</h2>
 
@@ -17,7 +18,7 @@
         @foreach (var p in Model)
         {
             <tr>
-                <td>@p.ParentType</td>
+                <td>@p.ParentType.GetDisplayName()</td>
                 <td>@p.Name</td>
                 <td>@p.Surname</td>
                 <td>@p.ChildrenCount</td>

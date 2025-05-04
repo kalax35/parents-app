@@ -1,4 +1,5 @@
 ﻿@model ParentsApp.Models.Parent
+@using ParentsApp.Helpers
 
 @{
     ViewData["Title"] = "Dodaj rodzica";
@@ -8,11 +9,11 @@
 
 <form id="parentForm">
     <div class="mb-3">
-        <label class="form-label">Typ rodzica</label>
-        <select class="form-select" asp-for="ParentType">
-            <option value="0">Mama</option>
-            <option value="1">Tata</option>
+        <label asp-for="ParentType" class="form-label">Typ rodzica</label>
+        <select asp-for="ParentType" class="form-select" asp-items="Model.ParentTypes">
+            <option value="">-- Wybierz --</option>
         </select>
+        <span asp-validation-for="ParentType" class="text-danger"></span>
     </div>
 
     <div class="mb-3">
