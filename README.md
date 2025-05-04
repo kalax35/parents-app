@@ -6,9 +6,9 @@ Aplikacja webowa umożliwia dodawanie informacji o rodzicach (Mama/Tata) poprzez
 
 1. Formularz dodawania rodzica z losowym pytaniem (spośród 100).
 2. Walidacja po stronie klienta i serwera.
-3. Sprawdzenie unikalności rodzica (bez względu na wielkość liter).
+3. Sprawdzenie unikalności rodzica.
 4. Asynchroniczny zapis do pliku `rodzice.txt`.
-5. Lista zapisanych rodziców z estetycznym wyglądem.
+5. Lista zapisanych rodziców.
 6. Rejestrowanie błędów w pliku `error-log.txt`.
 
 # Technologie:
