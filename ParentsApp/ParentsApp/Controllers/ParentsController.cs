@@ -122,6 +122,20 @@ namespace ParentsApp.Controllers
             return View(parents);
         }
 
+        public async Task<IActionResult> DownloadFile()
+        {
+            var filePath = _filePath;
+
+            if (System.IO.File.Exists(filePath))
+            {
+                var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
+                var fileName = Path.GetFileName(filePath);
+                return File(fileBytes, "application/octet-stream", fileName);
+            }
+
+            return NotFound("Plik nie istnieje.");
+        }
+
         private List<SelectListItem> GetParentTypeSelectList()
         {
             return Enum.GetValues(typeof(eParentType))
@@ -156,8 +170,8 @@ namespace ParentsApp.Controllers
                 parent.Name.Trim(),
                 parent.Surname.Trim(),
                 parent.ChildrenCount,
-                parent.Question,
-                parent.QuestionAnswer?.Trim() ?? string.Empty
+                Sanitize(parent.Question),
+                Sanitize(parent.QuestionAnswer)
             );
         }
 
@@ -165,5 +179,7 @@ namespace ParentsApp.Controllers
         {
             await System.IO.File.AppendAllTextAsync(_filePath, line + Environment.NewLine, Encoding.UTF8);
         }
+
+        string Sanitize(string input) => input?.Replace(";", ",");
     }
 }
