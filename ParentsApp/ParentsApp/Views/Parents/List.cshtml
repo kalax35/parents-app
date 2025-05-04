@@ -1,0 +1,29 @@
+﻿@model List<Parent>
+
+<h2>Lista zapisanych rodziców</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Typ</th>
+            <th>Imię</th>
+            <th>Nazwisko</th>
+            <th>Liczba dzieci</th>
+            <th>Pytanie</th>
+            <th>Odpowiedź</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model)
+        {
+            <tr>
+                <td>@p.ParentType</td>
+                <td>@p.Name</td>
+                <td>@p.Surname</td>
+                <td>@p.ChildrenCount</td>
+                <td>@p.Question</td>
+                <td>@p.QuestionAnswer</td>
+            </tr>
+        }
+    </tbody>
+</table>

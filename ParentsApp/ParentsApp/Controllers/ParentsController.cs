@@ -61,5 +61,34 @@ namespace ParentsApp.Controllers
 
             return Ok("Rodzic został zapisany pomyślnie.");
         }
+
+
+        public async Task<IActionResult> List()
+        {
+            var parents = new List<Parent>();
+
+            if (System.IO.File.Exists(_filePath))
+            {
+                var lines = await System.IO.File.ReadAllLinesAsync(_filePath);
+                foreach (var line in lines)
+                {
+                    var parts = line.Split(';');
+                    if (parts.Length >= 6)
+                    {
+                        parents.Add(new Parent
+                        {
+                            ParentType = Enum.Parse<eParentType>(parts[0]),
+                            Name = parts[1],
+                            Surname = parts[2],
+                            ChildrenCount = int.Parse(parts[3]),
+                            Question = parts[4],
+                            QuestionAnswer = parts[5]
+                        });
+                    }
+                }
+            }
+
+            return View(parents);
+        }
     }
 }
