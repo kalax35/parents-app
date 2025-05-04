@@ -1,0 +1,6 @@
+04.05.2025 15:39:39: Błędy odczytu
+Błąd parsowania: Mother;dd;dd;hj;ss;0;Twoje ulubione jedzenie?;sd | The input string 'hj' was not in a correct format.
+----------------------------------------
+04.05.2025 15:40:11: Błędy odczytu
+Błąd parsowania: Mother;dd;dd;hj;ss;0;Twoje ulubione jedzenie?;sd | The input string 'hj' was not in a correct format.
+----------------------------------------

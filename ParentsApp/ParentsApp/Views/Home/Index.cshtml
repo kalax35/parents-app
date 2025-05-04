@@ -2,10 +2,25 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Witaj!</h1>
-    <p>Przejdź do formularza dodawania rodzica:</p>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-5 fw-bold mb-4">ParentsApp</h1>
+            <p class="lead mb-4">
+                To prosta aplikacja służąca do rejestrowania podstawowych informacji o rodzicach.
+                Możesz wypełnić formularz, odpowiedzieć na jedno z losowych pytań i zapisać dane w pliku tekstowym.
+            </p>
 
-    <a class="btn btn-primary" href="@Url.Action("Form", "Parents")">Dodaj rodzica</a>
+            <div class="d-grid gap-3 d-md-flex justify-content-md-center">
+                <a class="btn btn-outline-primary btn-lg px-4" href="@Url.Action("Form", "Parents")">
+                    Dodaj nowego rodzica
+                </a>
+                <a class="btn btn-primary btn-lg px-4" href="@Url.Action("List", "Parents")">
+                    Zobacz listę rodziców
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
+
 

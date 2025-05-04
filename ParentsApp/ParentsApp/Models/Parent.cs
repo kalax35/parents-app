@@ -6,13 +6,14 @@ namespace ParentsApp.Models
     public class Parent
     {
         public int Id { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Imię jest wymagane")]
         public string Name { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Nazwisko jest wymagane")]
         public string Surname { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Wybierz typ rodzica")]
         public eParentType ParentType { get; set; }
-        [Required]
+        [Required(ErrorMessage = "Podaj liczbę dzieci")]
+        [Range(1, 100, ErrorMessage = "Liczba dzieci musi być większa niż 1")]
         public int ChildrenCount { get; set; }
         public string Question { get; set; }
         public string QuestionAnswer { get; set; } = String.Empty;

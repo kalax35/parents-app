@@ -1,30 +1,57 @@
 ﻿@model List<Parent>
 @using ParentsApp.Helpers
 
-<h2>Lista zapisanych rodziców</h2>
+<div class="container mt-4">
+    <div class="card shadow-sm rounded-3">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="card-title mb-0">Lista zapisanych rodziców</h2>
+                <a class="btn btn-primary" href="@Url.Action("Form", "Parents")">
+                    <i class="bi bi-plus-circle me-1"></i> Dodaj nowego rodzica
+                </a>
+            </div>
 
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Typ</th>
-            <th>Imię</th>
-            <th>Nazwisko</th>
-            <th>Liczba dzieci</th>
-            <th>Pytanie</th>
-            <th>Odpowiedź</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var p in Model)
-        {
-            <tr>
-                <td>@p.ParentType.GetDisplayName()</td>
-                <td>@p.Name</td>
-                <td>@p.Surname</td>
-                <td>@p.ChildrenCount</td>
-                <td>@p.Question</td>
-                <td>@p.QuestionAnswer</td>
-            </tr>
-        }
-    </tbody>
-</table>
+            @if (Model != null && Model.Any())
+            {
+                @if (ViewBag.SkippedLines > 0)
+                {
+                    <div class="alert alert-warning">
+                        Pominięto @ViewBag.SkippedLines błędn@((ViewBag.SkippedLines == 1) ? "ą linię" : "e linie") z powodu błędów w formacie danych.
+                    </div>
+                }
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Typ</th>
+                                <th>Imię</th>
+                                <th>Nazwisko</th>
+                                <th>Liczba dzieci</th>
+                                <th>Pytanie</th>
+                                <th>Odpowiedź</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var p in Model)
+                            {
+                                <tr>
+                                    <td>@p.ParentType.GetDisplayName()</td>
+                                    <td>@p.Name</td>
+                                    <td>@p.Surname</td>
+                                    <td>@p.ChildrenCount</td>
+                                    <td>@p.Question</td>
+                                    <td>@p.QuestionAnswer</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">Brak zapisanych rodziców.</p>
+            }
+        </div>
+    </div>
+</div>

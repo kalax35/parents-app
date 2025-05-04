@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
+using ParentsApp.Helpers;
 using ParentsApp.Models;
 using ParentsApp.Services;
 using System.ComponentModel.DataAnnotations;
@@ -13,6 +14,7 @@ namespace ParentsApp.Controllers
     {
         private readonly IWebHostEnvironment _env;
         private readonly string _filePath;
+        private readonly string _errorfilePath;
         private readonly QuestionProvider _questionProvider;
 
         public ParentsController(IWebHostEnvironment env, IOptions<AppSettings> options,
@@ -20,6 +22,7 @@ namespace ParentsApp.Controllers
         {
             _env = env;
             _filePath = options.Value.ParentFilePath;
+            _errorfilePath = options.Value.ErrorLogFilePath;
             _questionProvider = questionProvider;
 
             Directory.CreateDirectory(Path.GetDirectoryName(_filePath)!);
@@ -42,60 +45,85 @@ namespace ParentsApp.Controllers
             if (!ModelState.IsValid)
                 return BadRequest("Formularz zawiera błędy.");
 
-            string name = parent.Name.Trim().ToLowerInvariant();
-            string surname = parent.Surname.Trim().ToLowerInvariant();
+            string name = parent.Name?.Trim().ToLowerInvariant();
+            string surname = parent.Surname?.Trim().ToLowerInvariant();
 
-            if (System.IO.File.Exists(_filePath))
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(surname))
+                return BadRequest("Imię i nazwisko są wymagane");
+
+            if (await IsDuplicateAsync(name, surname))
+                return Conflict("Rodzic już istnieje");
+
+            try
             {
-                var lines = await System.IO.File.ReadAllLinesAsync(_filePath);
+                var line = FormatParentAsLine(parent);
+                await AppendParentToFileAsync(line);
 
-                bool exists = lines.Any(line =>
-                {
-                    var parts = line.Split(';');
-                    return parts.Length >= 3 &&
-                           parts[1].Trim().ToLowerInvariant() == name &&
-                           parts[2].Trim().ToLowerInvariant() == surname;
-                });
-
-                if (exists)
-                    return Conflict("Rodzic już istnieje.");
+                return Ok("Rodzic został zapisany pomyślnie");
             }
+            catch (Exception ex)
+            {
+                var errorMessage = $"[{DateTime.Now}] Błąd zapisu rodzica: {ex.Message}{Environment.NewLine}{ex.StackTrace}{Environment.NewLine}---{Environment.NewLine}";
 
-            var lineToSave = string.Join(";", parent.ParentType, parent.Name, parent.Surname,
-                                         parent.ChildrenCount, parent.Question, parent.QuestionAnswer);
-            await System.IO.File.AppendAllTextAsync(_filePath, lineToSave + Environment.NewLine, Encoding.UTF8);
+                await System.IO.File.AppendAllTextAsync(_errorfilePath, errorMessage);
 
-            return Ok("Rodzic został zapisany pomyślnie.");
+                return StatusCode(500, "Wystąpił błąd podczas zapisu");
+            }
         }
+
 
 
         public async Task<IActionResult> List()
         {
             var parents = new List<Parent>();
+            int skippedLines = 0;
+            var invalidLines = new List<string>();
 
             if (System.IO.File.Exists(_filePath))
             {
                 var lines = await System.IO.File.ReadAllLinesAsync(_filePath);
                 foreach (var line in lines)
                 {
-                    var parts = line.Split(';');
-                    if (parts.Length >= 6)
+                    try
                     {
-                        parents.Add(new Parent
+                        var parts = line.Split(';');
+                        if (parts.Length >= 6)
                         {
-                            ParentType = Enum.Parse<eParentType>(parts[0]),
-                            Name = parts[1],
-                            Surname = parts[2],
-                            ChildrenCount = int.Parse(parts[3]),
-                            Question = parts[4],
-                            QuestionAnswer = parts[5]
-                        });
+                            parents.Add(new Parent
+                            {
+                                ParentType = Enum.Parse<eParentType>(parts[0]),
+                                Name = parts[1],
+                                Surname = parts[2],
+                                ChildrenCount = int.Parse(parts[3]),
+                                Question = parts[4],
+                                QuestionAnswer = parts[5]
+                            });
+                        }
+                        else
+                        {
+                            skippedLines++;
+                            invalidLines.Add($"Brakujące dane: {line}");
+                        }
                     }
+                    catch (Exception ex)
+                    {
+                        skippedLines++;
+                        invalidLines.Add($"Błąd parsowania: {line} | {ex.Message}");
+                        continue;
+                    }
+                }
+
+                if (invalidLines.Any())
+                {
+                    var logContent = string.Join(Environment.NewLine, invalidLines);
+                    await System.IO.File.AppendAllTextAsync(_errorfilePath, $"{DateTime.Now}: Błędy odczytu{Environment.NewLine}{logContent}{Environment.NewLine}{new string('-', 40)}{Environment.NewLine}");
                 }
             }
 
+            ViewBag.SkippedLines = skippedLines;
             return View(parents);
         }
+
 
         private List<SelectListItem> GetParentTypeSelectList()
         {
@@ -103,13 +131,43 @@ namespace ParentsApp.Controllers
                        .Cast<eParentType>()
                        .Select(e => new SelectListItem
                        {
-                           Value = e.ToString(),
-                           Text = e.GetType()
-                                   .GetMember(e.ToString())
-                                   .First()
-                                   .GetCustomAttribute<DisplayAttribute>()?.Name ?? e.ToString()
+                           Value = ((int)e).ToString(),
+                           Text = e.GetDisplayName()
                        })
                        .ToList();
         }
+
+        private async Task<bool> IsDuplicateAsync(string name, string surname)
+        {
+            if (!System.IO.File.Exists(_filePath))
+                return false;
+
+            var lines = await System.IO.File.ReadAllLinesAsync(_filePath);
+            return lines.Any(line =>
+            {
+                var parts = line.Split(';');
+                return parts.Length >= 3 &&
+                       parts[1].Trim().ToLowerInvariant() == name &&
+                       parts[2].Trim().ToLowerInvariant() == surname;
+            });
+        }
+
+        private string FormatParentAsLine(Parent parent)
+        {
+            return string.Join(";",
+                parent.ParentType,
+                parent.Name.Trim(),
+                parent.Surname.Trim(),
+                parent.ChildrenCount,
+                parent.Question,
+                parent.QuestionAnswer?.Trim() ?? string.Empty
+            );
+        }
+
+        private async Task AppendParentToFileAsync(string line)
+        {
+            await System.IO.File.AppendAllTextAsync(_filePath, line + Environment.NewLine, Encoding.UTF8);
+        }
+
     }
 }

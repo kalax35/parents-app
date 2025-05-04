@@ -20,3 +20,21 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.alert {
+    transition: all 0.3s ease-in-out;
+}
+
+.fade-out {
+    opacity: 0;
+    transition: opacity 0.5s ease-out;
+}
+
+.footer {
+    background-color: #e3f2fd;
+    color: #0d6efd;
+}
+
+.me-2 {
+    color: #0d6efd;
+}
